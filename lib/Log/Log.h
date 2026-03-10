@@ -63,7 +63,27 @@ do {\
     Serial.println(msg);\
 } while(0)
 
-// Module logs
+#define LOG_ERRORF(tag, fmt, ...) \
+do {\
+    Serial.print("[");\
+    Serial.print(tag);\
+    Serial.print("] ");\
+    Serial.print(COLOR_ERROR "[ERROR]" COLOR_RESET " ");\
+    Serial.print(__FILE__);\
+    Serial.print(":");\
+    Serial.print(__LINE__);\
+    Serial.print(" ");\
+    Serial.printf(fmt, ##__VA_ARGS__);\
+    Serial.println();\
+} while(0)
+
+// Module logs for WiFi
 #define LOG_WIFI(msg) LOG_INFO("WiFi", msg)
 #define LOG_WIFIF(fmt, ...) LOG_INFOF("WiFi", fmt, ##__VA_ARGS__)
 #define LOG_WIFI_ERR(msg) LOG_ERROR("WiFi", msg)
+
+// Module logs for MQTT
+#define LOG_MQTT(msg) LOG_INFO("MQTT", msg)
+#define LOG_MQTTF(fmt, ...) LOG_INFOF("MQTT", fmt, ##__VA_ARGS__)
+#define LOG_MQTT_ERR(msg) LOG_ERROR("MQTT", msg)
+#define LOG_MQTT_ERRF(fmt, ...) LOG_ERRORF("MQTT", fmt, ##__VA_ARGS__)
