@@ -7,6 +7,7 @@ class WiFiConnection {
     public :
         WiFiConnection(const char* SSID, const char* Password, uint16_t WifiRetries = 5);   
 
+        void begin();
     private : 
         String _ssid;
         String _password;

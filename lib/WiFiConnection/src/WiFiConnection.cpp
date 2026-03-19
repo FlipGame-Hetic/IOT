@@ -1,11 +1,17 @@
 #include <WiFiConnection.h>
 #include <Log.h>
 
-WiFiConnection::WiFiConnection(const char* SSID, const char* Password, uint16_t WifiRetries) :
+WiFiConnection::WiFiConnection(
+    const char* SSID, 
+    const char* Password, 
+    uint16_t WifiRetries
+) :
     _ssid(SSID),
     _password(Password),
     _maxRetries(WifiRetries)
-{
+{}
+
+void WiFiConnection::begin() {
     LOG_WIFI("Starting Wifi...");
     LOG_WIFIF("Connecting to %s", _ssid);
 
@@ -30,4 +36,4 @@ WiFiConnection::WiFiConnection(const char* SSID, const char* Password, uint16_t 
     };
     
     LOG_WIFI("Connection successfull !");
-}
+};

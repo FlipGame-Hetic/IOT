@@ -55,12 +55,11 @@ void MQTT::reconnect() {
 
             // Resubscribre to all topics
             for (auto& pair : _jsonHandlers) {
-                this->subscribeJson(pair.first.c_str(), pair.second);
+                _mqtt.subscribe(pair.first.c_str());    
             }
             for (auto& pair : _rawHandlers) {
-                this->subscribeRaw(pair.first.c_str(), pair.second);
+                _mqtt.subscribe(pair.first.c_str());            
             }
-
         } else {
             LOG_MQTT_ERR("Failed :");
             LOG_MQTT_ERR(_mqtt.state());
