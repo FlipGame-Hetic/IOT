@@ -20,6 +20,9 @@ MQTT::MQTT(
 
 void MQTT::begin() {
     _mqtt.setServer(_broker.c_str(), _port);
+    _mqtt.setCallback([this](char* topic, byte* payload, unsigned int length) {
+        this->_dispatch(topic, payload, length);
+    }); 
     reconnect();
 }
 
@@ -49,6 +52,15 @@ void MQTT::reconnect() {
         if (connected) {
             LOG_MQTT("Connection successfull !");
             _mqtt.publish(_statusTopic.c_str(), "online", true);
+
+            // Resubscribre to all topics
+            for (auto& pair : _jsonHandlers) {
+                this->subscribeJson(pair.first.c_str(), pair.second);
+            }
+            for (auto& pair : _rawHandlers) {
+                this->subscribeRaw(pair.first.c_str(), pair.second);
+            }
+
         } else {
             LOG_MQTT_ERR("Failed :");
             LOG_MQTT_ERR(_mqtt.state());
@@ -81,6 +93,44 @@ void MQTT::publishJson(const char* topic, const JsonDocument& doc, bool retained
     publish(topic, buffer, retained);
 }
 
-void MQTT::subscribe(const char* topic, uint8_t qos) {
+void MQTT::subscribeJson(const char* topic, JsonCallback cb, uint8_t qos) {
+    _jsonHandlers[String(topic)] = cb;
     _mqtt.subscribe(topic, qos);
+}
+
+void MQTT::subscribeRaw(const char* topic, RawCallback cb, uint8_t qos) {
+    _rawHandlers[String(topic)] = cb;
+    _mqtt.subscribe(topic, qos);
+}
+
+void MQTT::_dispatch(char* topic, byte* payload, unsigned int length) {
+    // Convert the payload in a String
+    char message[length + 1];
+    memcpy(message, payload, length);
+    message[length] = '\0';
+
+    String topicStr(topic);
+
+    // Check if the topic require a jsonHandler
+    auto jsonIt = _jsonHandlers.find(topicStr);
+    if (jsonIt != _jsonHandlers.end()){
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, message);
+        if (error) {
+            LOG_MQTT_ERRF("JSON parse failed on %s: %s", topic, error.c_str());
+            return;
+        }
+        jsonIt->second(doc);
+        return;
+    }
+
+    // Else it will be checked in the raw handler
+    auto rawIt = _rawHandlers.find(topicStr);
+    if (rawIt != _rawHandlers.end()) {
+        rawIt->second(String(message));
+        return;
+    }
+
+    // If the topic isnt present in any of the previous handler return an error
+    LOG_ERRORF("No handler found for : %s", topic);
 }
