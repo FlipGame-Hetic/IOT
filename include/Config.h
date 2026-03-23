@@ -1,3 +1,6 @@
-// LED config
-#define TEST_LED 8
-#define NUM_LED 1
+#pragma once
+
+// WiFi Config
+#define WIFI_SSID ""
+#define WIFI_PASSWORD ""
+#define WIFI_MAX_CONNECTION_RETRY 10
