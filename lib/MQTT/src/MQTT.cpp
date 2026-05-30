@@ -11,9 +11,9 @@ MQTT::MQTT(
     _mqtt(_espClient),
     _id(id),
     _broker(broker),
+    _statusTopic(statusTopic),
     _user(user),
     _pass(pass),
-    _statusTopic(statusTopic),
     _port(port)
 {}
 
