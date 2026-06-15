@@ -9,9 +9,9 @@
   MQTT mqtt(
       "esp32-test",
       "100.125.185.88",
+      "pinball/esp32-test/esp32/status",
       "",
       "",
-      "home/esp32/status",
       1883
   );
 
@@ -29,19 +29,19 @@
   void onPrimaryButtonLeftPress() {
     Serial.printf("Press Left");
     JsonDocument doc;
-    doc["id"] = "white_input_left";
+    doc["id"] = "flipper_left";
     doc["state"] = 1;
     doc["ts"] = millis();
-    mqtt.publishJson("input/button", doc);
+    mqtt.publishJson("pinball/esp32-test/input/button", doc);
   }
 
   void onPrimaryButtonRightPress() {
     Serial.printf("Press Right");
     JsonDocument doc;
-    doc["id"] = "white_input_right";
+    doc["id"] = "flipper_right";
     doc["state"] = 1;
     doc["ts"] = millis();
-    mqtt.publishJson("input/button", doc);
+    mqtt.publishJson("pinball/esp32-test/input/button", doc);
   }
 
   void onPlungerPress() {
@@ -56,19 +56,19 @@
   void onPrimaryButtonLeftRelease() {
     Serial.printf("Release Left");
     JsonDocument doc;
-    doc["id"] = "white_input_left";
+    doc["id"] = "flipper_left";
     doc["state"] = 0;
     doc["ts"] = millis();
-    mqtt.publishJson("input/button", doc);
+    mqtt.publishJson("pinball/esp32-test/input/button", doc);
   }
 
   void onPrimaryButtonRightRelease() {
     Serial.printf("Release Right");
     JsonDocument doc;
-    doc["id"] = "white_input_right";
+    doc["id"] = "flipper_right";
     doc["state"] = 0;
     doc["ts"] = millis();
-    mqtt.publishJson("input/button", doc);
+    mqtt.publishJson("pinball/esp32-test/input/button", doc);
   }
 
   void onPlungerRelease() {
@@ -78,9 +78,9 @@
 
     JsonDocument doc;
     doc["position"] = position;
-    doc["state"] = 0;
+    doc["released"] = true;
     doc["ts"] = millis();
-    mqtt.publishJson("input/plunger", doc);
+    mqtt.publishJson("pinball/esp32-test/input/plunger", doc);
   }
   
   void setup() {

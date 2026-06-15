@@ -3,9 +3,9 @@
 MQTT::MQTT(
     const char* id, 
     const char* broker, 
+    const char* statusTopic,
     const char* user,
     const char* pass,
-    const char* statusTopic,
     uint16_t port
 ) : 
     _mqtt(_espClient),
