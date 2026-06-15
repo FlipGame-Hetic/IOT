@@ -21,7 +21,7 @@ void WiFiConnection::begin() {
     uint8_t retries = 0;
 
     while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
+        delay(400);
         Serial.print(".");
         retries++;
         if (retries >= _maxRetries) {    

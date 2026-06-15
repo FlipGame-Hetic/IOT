@@ -5,56 +5,111 @@
   #include <MQTT.h>
   #include <Button.h>
 
-  // WiFiConnection wifi(WIFI_SSID, WIFI_PASSWORD, WIFI_MAX_CONNECTION_RETRY);
-  // MQTT mqtt(
-  //     "esp32-test",
-  //     "192.168.1.xx",
-  //     "",
-  //     "",
-  //     "home/esp32/status",
-  //     1883
-  // );
+  WiFiConnection wifi(WIFI_SSID, WIFI_PASSWORD, WIFI_MAX_CONNECTION_RETRY);
+  MQTT mqtt(
+      "esp32-test",
+      "100.125.185.88",
+      "",
+      "",
+      "home/esp32/status",
+      1883
+  );
 
-  Button buttonTest(BUTTON_PIN);
-  
-  void onButtonClick() {
-    Serial.printf("Click");
-  }
+  Button primaryButtonLeft(PRIMARY_BUTTON_LEFT_PIN);
+  Button primaryButtonRight(PRIMARY_BUTTON_RIGHT_PIN);
+  Button plunger(PLUNGER_PIN);
+
+  uint32_t plungerStart = 0;
+  const uint32_t plungerMax = 2000;
 
   void onButtonDoubleClick() {
     Serial.printf("DoubleClick");
   }
 
-  void onButtonPress() {
-    Serial.printf("Press");
+  void onPrimaryButtonLeftPress() {
+    Serial.printf("Press Left");
+    JsonDocument doc;
+    doc["id"] = "white_input_left";
+    doc["state"] = 1;
+    doc["ts"] = millis();
+    mqtt.publishJson("input/button", doc);
+  }
+
+  void onPrimaryButtonRightPress() {
+    Serial.printf("Press Right");
+    JsonDocument doc;
+    doc["id"] = "white_input_right";
+    doc["state"] = 1;
+    doc["ts"] = millis();
+    mqtt.publishJson("input/button", doc);
+  }
+
+  void onPlungerPress() {
+    Serial.println("Plunger Pressed");
+    plungerStart = millis();
   }
 
   void onLongPress() {
     Serial.printf("Long Press");
   }
 
-  void onRelease() {
-    Serial.printf("Release");
+  void onPrimaryButtonLeftRelease() {
+    Serial.printf("Release Left");
+    JsonDocument doc;
+    doc["id"] = "white_input_left";
+    doc["state"] = 0;
+    doc["ts"] = millis();
+    mqtt.publishJson("input/button", doc);
+  }
+
+  void onPrimaryButtonRightRelease() {
+    Serial.printf("Release Right");
+    JsonDocument doc;
+    doc["id"] = "white_input_right";
+    doc["state"] = 0;
+    doc["ts"] = millis();
+    mqtt.publishJson("input/button", doc);
+  }
+
+  void onPlungerRelease() {
+    Serial.printf("Release Plunger");
+    uint32_t held = millis() - plungerStart;
+    float position = (float)std::min(held, plungerMax) / (float)plungerMax;
+
+    JsonDocument doc;
+    doc["position"] = position;
+    doc["state"] = 0;
+    doc["ts"] = millis();
+    mqtt.publishJson("input/plunger", doc);
   }
   
   void setup() {
     Serial.begin(115200);
     delay(200);
 
-    // wifi.begin();
+    wifi.begin();
 
-    // Serial.println(WiFi.localIP());
+    Serial.println(WiFi.localIP());
 
-    // mqtt.begin();
+    mqtt.begin();
 
-    buttonTest.begin();
-    buttonTest.onClick(onButtonClick);
-    buttonTest.onDoubleClick(onButtonDoubleClick);
-    buttonTest.onLongPress(onLongPress);
-    buttonTest.onRelease(onRelease);
+    primaryButtonLeft.begin();
+    primaryButtonRight.begin();
+    plunger.begin();
+
+    primaryButtonLeft.onPress(onPrimaryButtonLeftPress);
+    primaryButtonRight.onPress(onPrimaryButtonRightPress);
+
+    primaryButtonLeft.onRelease(onPrimaryButtonLeftRelease);
+    primaryButtonRight.onRelease(onPrimaryButtonRightRelease);
+
+    plunger.onPress(onPlungerPress);
+    plunger.onRelease(onPlungerRelease);
   }
 
   void loop() {
-    // mqtt.loop();
-    buttonTest.update();
+    mqtt.loop();
+    primaryButtonLeft.update();
+    primaryButtonRight.update();
+    plunger.update();
   }

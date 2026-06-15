@@ -8,8 +8,8 @@ class WiFiConnection {
         WiFiConnection(const char* SSID, const char* Password, uint16_t WifiRetries = 5);   
 
         void begin();
-    private : 
-        String _ssid;
-        String _password;
+    private :
+        const char* _ssid;
+        const char* _password;
         uint8_t _maxRetries;
 };
