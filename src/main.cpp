@@ -17,75 +17,130 @@
 
   Button primaryButtonLeft(PRIMARY_BUTTON_LEFT_PIN);
   Button primaryButtonRight(PRIMARY_BUTTON_RIGHT_PIN);
+  
+  Button secondaryButtonRight(SECONDARY_BUTTON_RIGHT_PIN);
+  Button secondaryButtonLeft(SECONDARY_BUTTON_LEFT_PIN);
+
+  Button buttonTop(FRONT_PANEL_BUTTON_TOP_PIN);
+  Button buttonMiddle(FRONT_PANEL_BUTTON_MIDDLE_PIN);
+  Button buttonBottom(FRONT_PANEL_BUTTON_BOTTOM_PIN);
+
+  Button underPlunger(FRONT_PANEL_BUTTON_UNDERPLUNGER_PIN);
   Button plunger(PLUNGER_PIN);
 
-  uint32_t plungerStart = 0;
-  const uint32_t plungerMax = 2000;
+  // ===== Events =====
 
-  void onButtonDoubleClick() {
-    Serial.printf("DoubleClick");
+  void publishEvent(const char *id, JsonDocument doc, char *topic) {
+    LOG_MAINF("Pressed %s", id);
+    mqtt.publishJson(topic, doc);
   }
-
-  void onPrimaryButtonLeftPress() {
-    Serial.printf("Press Left");
+  
+  void publishButtonEvent(const char *id, uint8_t state) {
     JsonDocument doc;
-    doc["id"] = "flipper_left";
-    doc["state"] = 1;
+    doc["id"] = id;
+    doc["state"] = state;
     doc["ts"] = millis();
-    mqtt.publishJson("pinball/esp32-test/input/button", doc);
+
+    publishEvent(id, doc, "pinball/esp32-test/input/button");
   }
 
-  void onPrimaryButtonRightPress() {
-    Serial.printf("Press Right");
-    JsonDocument doc;
-    doc["id"] = "flipper_right";
-    doc["state"] = 1;
-    doc["ts"] = millis();
-    mqtt.publishJson("pinball/esp32-test/input/button", doc);
-  }
-
-  void onPlungerPress() {
-    Serial.println("Plunger Pressed");
-    plungerStart = millis();
-  }
-
-  void onLongPress() {
-    Serial.printf("Long Press");
-  }
-
-  void onPrimaryButtonLeftRelease() {
-    Serial.printf("Release Left");
-    JsonDocument doc;
-    doc["id"] = "flipper_left";
-    doc["state"] = 0;
-    doc["ts"] = millis();
-    mqtt.publishJson("pinball/esp32-test/input/button", doc);
-  }
-
-  void onPrimaryButtonRightRelease() {
-    Serial.printf("Release Right");
-    JsonDocument doc;
-    doc["id"] = "flipper_right";
-    doc["state"] = 0;
-    doc["ts"] = millis();
-    mqtt.publishJson("pinball/esp32-test/input/button", doc);
-  }
-
-  void onPlungerRelease() {
-    Serial.printf("Release Plunger");
-    uint32_t held = millis() - plungerStart;
-    float position = (float)std::min(held, plungerMax) / (float)plungerMax;
+  void publishPlungerEvent() {
+    LOG_MAIN("Plunger Pressed");
 
     JsonDocument doc;
-    doc["position"] = position;
-    doc["released"] = true;
+    doc["state"] = 1; // Hardcoded because the plunger is broken irl
     doc["ts"] = millis();
     mqtt.publishJson("pinball/esp32-test/input/plunger", doc);
   }
+
+  // ===== Helpers =====
+
+  void bindButtonPress(Button& btn, const char *id) {
+    btn.onPress([id]() { publishButtonEvent(id, 1); });
+    btn.onPress([id]() { publishButtonEvent(id, 0); });
+  }
+
+  // ===== Callback Func =====
+
+  
+  void onPlungerClick() {
+    publishPlungerEvent();
+  }
+  
+  void onPrimaryButtonLeftPress() {
+    publishButtonEvent("L1", 1);
+  }
+  
+  void onPrimaryButtonLeftRelease() {
+    publishButtonEvent("L1", 0);
+    Serial.printf("Release Left");
+  }
+  
+  void onPrimaryButtonRightPress() {
+    publishButtonEvent("R1", 1);
+  }
+  
+  void onPrimaryButtonRightRelease() {
+    publishButtonEvent("R1", 0);
+  }
+
+  void onSecondaryButtonLeftPress() {
+    publishButtonEvent("L2", 1);
+  }
+  
+  void onSecondaryButtonLeftRelease() {
+    publishButtonEvent("L2", 0);
+    Serial.printf("Release Left");
+  }
+  
+  void onSecondaryButtonRightPress() {
+    publishButtonEvent("R2", 1);
+  }
+  
+  void onSecondaryButtonRightRelease() {
+    publishButtonEvent("R2", 0);
+  }
+
+  void onUnderPlungerPress() {
+    publishButtonEvent("under_plunger", 1);
+  }
+
+  void onUnderPlungerRelease() {
+    publishButtonEvent("under_plunger", 0);
+  }
+
+  void onButtonTopPress() {
+    publishButtonEvent("top", 1);
+  }
+
+  void onButtonTopRelease() {
+    publishButtonEvent("top", 0);
+  }
+
+  void onButtonMiddlePress() {
+    publishButtonEvent("middle", 1);
+  }
+
+  void onButtonMiddleRelease() {
+    publishButtonEvent("middle", 0);
+  }
+
+  void onButtonBottomPress() {
+    publishButtonEvent("bottom", 1);
+  }
+
+  void onButtonBottomRelease() {
+    publishButtonEvent("bottom", 0);
+  }
+
+
+  // ===== Setup =====
   
   void setup() {
     Serial.begin(115200);
     delay(200);
+
+    // Startup all the requiered elements
 
     wifi.begin();
 
@@ -95,21 +150,48 @@
 
     primaryButtonLeft.begin();
     primaryButtonRight.begin();
+
+    secondaryButtonLeft.begin();
+    secondaryButtonRight.begin();
+    
+    buttonTop.begin();
+    buttonMiddle.begin();
+    buttonBottom.begin();
+
+    underPlunger.begin();
     plunger.begin();
 
-    primaryButtonLeft.onPress(onPrimaryButtonLeftPress);
-    primaryButtonRight.onPress(onPrimaryButtonRightPress);
+    // Bind the callbacks
+    bindButtonPress(primaryButtonLeft, "L1");
+    bindButtonPress(primaryButtonRight, "R1");
 
-    primaryButtonLeft.onRelease(onPrimaryButtonLeftRelease);
-    primaryButtonRight.onRelease(onPrimaryButtonRightRelease);
+    bindButtonPress(secondaryButtonLeft, "L2");
+    bindButtonPress(secondaryButtonRight, "R2");
 
-    plunger.onPress(onPlungerPress);
-    plunger.onRelease(onPlungerRelease);
+    bindButtonPress(buttonTop, "top");
+    bindButtonPress(buttonMiddle, "middle");
+    bindButtonPress(buttonBottom, "bottom");
+
+    bindButtonPress(underPlunger, "under_plunger");
+
+    plunger.onClick(onPlungerClick);
   }
+
+
+  // ===== Loop =====
 
   void loop() {
     mqtt.loop();
     primaryButtonLeft.update();
     primaryButtonRight.update();
+
+    secondaryButtonLeft.update();
+    secondaryButtonRight.update();
+
+    buttonTop.update();
+    buttonMiddle.update();
+    buttonBottom.update();
+
+    underPlunger.update();
     plunger.update();
   }

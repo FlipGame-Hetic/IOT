@@ -87,3 +87,9 @@ do {\
 #define LOG_MQTTF(fmt, ...) LOG_INFOF("MQTT", fmt, ##__VA_ARGS__)
 #define LOG_MQTT_ERR(msg) LOG_ERROR("MQTT", msg)
 #define LOG_MQTT_ERRF(fmt, ...) LOG_ERRORF("MQTT", fmt, ##__VA_ARGS__)
+
+// Module logs for Main
+#define LOG_MAIN(msg) LOG_INFO("Main", msg)
+#define LOG_MAINF(fmt, ...) LOG_INFOF("Main", fmt, ##__VA_ARGS__)
+#define LOG_MAIN_ERR(msg) LOG_ERROR("Main", msg)
+#define LOG_MAIN_ERRF(fmt, ...) LOG_ERRORF("Main", fmt, ##__VA_ARGS__)
