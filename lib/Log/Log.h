@@ -54,12 +54,12 @@ do {\
 do {\
     Serial.print("[");\
     Serial.print(tag);\
-    Serial.print("] ");\
+    Serial.print("]");\
     Serial.print(COLOR_ERROR "[ERROR]" COLOR_RESET " ");\
     Serial.print(__FILE__);\
     Serial.print(":");\
     Serial.print(__LINE__);\
-    Serial.print(" ");\
+    Serial.print(" >> ");\
     Serial.println(msg);\
 } while(0)
 

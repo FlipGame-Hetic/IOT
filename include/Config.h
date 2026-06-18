@@ -3,7 +3,7 @@
 // WiFi Config
 #define WIFI_SSID ""
 #define WIFI_PASSWORD ""
-#define WIFI_MAX_CONNECTION_RETRY 100
+#define WIFI_MAX_CONNECTION_RETRY 10
 
 
 // Button  Config

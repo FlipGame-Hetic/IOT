@@ -30,7 +30,7 @@
 
   // ===== Events =====
 
-  void publishEvent(const char *id, JsonDocument doc, char *topic) {
+  void publishEvent(const char *id, JsonDocument doc, const char *topic) {
     LOG_MAINF("Pressed %s", id);
     mqtt.publishJson(topic, doc);
   }
@@ -62,78 +62,10 @@
 
   // ===== Callback Func =====
 
-  
   void onPlungerClick() {
     publishPlungerEvent();
   }
   
-  void onPrimaryButtonLeftPress() {
-    publishButtonEvent("L1", 1);
-  }
-  
-  void onPrimaryButtonLeftRelease() {
-    publishButtonEvent("L1", 0);
-    Serial.printf("Release Left");
-  }
-  
-  void onPrimaryButtonRightPress() {
-    publishButtonEvent("R1", 1);
-  }
-  
-  void onPrimaryButtonRightRelease() {
-    publishButtonEvent("R1", 0);
-  }
-
-  void onSecondaryButtonLeftPress() {
-    publishButtonEvent("L2", 1);
-  }
-  
-  void onSecondaryButtonLeftRelease() {
-    publishButtonEvent("L2", 0);
-    Serial.printf("Release Left");
-  }
-  
-  void onSecondaryButtonRightPress() {
-    publishButtonEvent("R2", 1);
-  }
-  
-  void onSecondaryButtonRightRelease() {
-    publishButtonEvent("R2", 0);
-  }
-
-  void onUnderPlungerPress() {
-    publishButtonEvent("under_plunger", 1);
-  }
-
-  void onUnderPlungerRelease() {
-    publishButtonEvent("under_plunger", 0);
-  }
-
-  void onButtonTopPress() {
-    publishButtonEvent("top", 1);
-  }
-
-  void onButtonTopRelease() {
-    publishButtonEvent("top", 0);
-  }
-
-  void onButtonMiddlePress() {
-    publishButtonEvent("middle", 1);
-  }
-
-  void onButtonMiddleRelease() {
-    publishButtonEvent("middle", 0);
-  }
-
-  void onButtonBottomPress() {
-    publishButtonEvent("bottom", 1);
-  }
-
-  void onButtonBottomRelease() {
-    publishButtonEvent("bottom", 0);
-  }
-
-
   // ===== Setup =====
   
   void setup() {
@@ -141,7 +73,6 @@
     delay(200);
 
     // Startup all the requiered elements
-
     wifi.begin();
 
     Serial.println(WiFi.localIP());
@@ -161,6 +92,8 @@
     underPlunger.begin();
     plunger.begin();
 
+
+    
     // Bind the callbacks
     bindButtonPress(primaryButtonLeft, "L1");
     bindButtonPress(primaryButtonRight, "R1");
