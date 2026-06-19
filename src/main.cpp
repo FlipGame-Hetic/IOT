@@ -8,7 +8,7 @@
   WiFiConnection wifi(WIFI_SSID, WIFI_PASSWORD, WIFI_MAX_CONNECTION_RETRY);
   MQTT mqtt(
       "esp32-test",
-      "100.125.185.88",
+      "10.42.0.1",
       "pinball/esp32-test/esp32/status",
       "",
       "",
@@ -57,7 +57,7 @@
 
   void bindButtonPress(Button& btn, const char *id) {
     btn.onPress([id]() { publishButtonEvent(id, 1); });
-    btn.onPress([id]() { publishButtonEvent(id, 0); });
+    btn.onRelease([id]() { publishButtonEvent(id, 0); });
   }
 
   // ===== Callback Func =====
