@@ -4,6 +4,7 @@
   #include <WiFiConnection.h>
   #include <MQTT.h>
   #include <Button.h>
+  #include <Gyro.h>
 
   WiFiConnection wifi(WIFI_SSID, WIFI_PASSWORD, WIFI_MAX_CONNECTION_RETRY);
   MQTT mqtt(
@@ -27,6 +28,8 @@
 
   Button underPlunger(FRONT_PANEL_BUTTON_UNDERPLUNGER_PIN);
   Button plunger(PLUNGER_PIN);
+
+  Gyro gyro;
 
   // ===== Events =====
 
@@ -72,59 +75,70 @@
     Serial.begin(115200);
     delay(200);
 
-    // Startup all the requiered elements
-    wifi.begin();
+    Wire.begin(6, 7);
 
-    Serial.println(WiFi.localIP());
+    gyro.begin();
 
-    mqtt.begin();
+    // // Startup all the requiered elements
+    // wifi.begin();
 
-    primaryButtonLeft.begin();
-    primaryButtonRight.begin();
+    // Serial.println(WiFi.localIP());
 
-    secondaryButtonLeft.begin();
-    secondaryButtonRight.begin();
+    // mqtt.begin();
+
+    // primaryButtonLeft.begin();
+    // primaryButtonRight.begin();
+
+    // secondaryButtonLeft.begin();
+    // secondaryButtonRight.begin();
     
-    buttonTop.begin();
-    buttonMiddle.begin();
-    buttonBottom.begin();
+    // buttonTop.begin();
+    // buttonMiddle.begin();
+    // buttonBottom.begin();
 
-    underPlunger.begin();
-    plunger.begin();
+    // underPlunger.begin();
+    // plunger.begin();
 
 
     
-    // Bind the callbacks
-    bindButtonPress(primaryButtonLeft, "L1");
-    bindButtonPress(primaryButtonRight, "R1");
+    // // Bind the callbacks
+    // bindButtonPress(primaryButtonLeft, "L1");
+    // bindButtonPress(primaryButtonRight, "R1");
 
-    bindButtonPress(secondaryButtonLeft, "L2");
-    bindButtonPress(secondaryButtonRight, "R2");
+    // bindButtonPress(secondaryButtonLeft, "L2");
+    // bindButtonPress(secondaryButtonRight, "R2");
 
-    bindButtonPress(buttonTop, "top");
-    bindButtonPress(buttonMiddle, "middle");
-    bindButtonPress(buttonBottom, "bottom");
+    // bindButtonPress(buttonTop, "top");
+    // bindButtonPress(buttonMiddle, "middle");
+    // bindButtonPress(buttonBottom, "bottom");
 
-    bindButtonPress(underPlunger, "under_plunger");
+    // bindButtonPress(underPlunger, "under_plunger");
 
-    plunger.onClick(onPlungerClick);
+    // plunger.onClick(onPlungerClick);
   }
 
 
   // ===== Loop =====
 
   void loop() {
-    mqtt.loop();
-    primaryButtonLeft.update();
-    primaryButtonRight.update();
 
-    secondaryButtonLeft.update();
-    secondaryButtonRight.update();
+    gyro.loop();
 
-    buttonTop.update();
-    buttonMiddle.update();
-    buttonBottom.update();
+    LOG_GYRO(gyro.getTiltX());
+    LOG_GYRO(gyro.getTiltY());
 
-    underPlunger.update();
-    plunger.update();
+    delay(200);
+    // mqtt.loop();
+    // primaryButtonLeft.update();
+    // primaryButtonRight.update();
+
+    // secondaryButtonLeft.update();
+    // secondaryButtonRight.update();
+
+    // buttonTop.update();
+    // buttonMiddle.update();
+    // buttonBottom.update();
+
+    // underPlunger.update();
+    // plunger.update();
   }

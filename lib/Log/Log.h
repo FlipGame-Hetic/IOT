@@ -93,3 +93,9 @@ do {\
 #define LOG_MAINF(fmt, ...) LOG_INFOF("Main", fmt, ##__VA_ARGS__)
 #define LOG_MAIN_ERR(msg) LOG_ERROR("Main", msg)
 #define LOG_MAIN_ERRF(fmt, ...) LOG_ERRORF("Main", fmt, ##__VA_ARGS__)
+
+// Module logs for Gyro
+#define LOG_GYRO(msg) LOG_INFO("Gyro", msg)
+#define LOG_GYROF(fmt, ...) LOG_INFOF("Gyro", fmt, ##__VA_ARGS__)
+#define LOG_GYRO_ERR(msg) LOG_ERROR("Gyro", msg)
+#define LOG_GYRO_ERRF(fmt, ...) LOG_ERRORF("Gyro", fmt, ##__VA_ARGS__)
