@@ -1,0 +1,47 @@
+name: Build & Deploy Firmware
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install tooling
+        run: pip install platformio esptool
+
+      - name: Build firmware
+        run: pio run
+
+      - name: Merge binaries
+        run: |
+          esptool.py --chip esp32c6 merge_bin \
+            -o merged-firmware.bin \
+            --flash_mode dio --flash_freq 80m --flash_size 4MB \
+            0x0     .pio/build/esp32/bootloader.bin \
+            0x8000  .pio/build/esp32/partitions.bin \
+            0x10000 .pio/build/esp32/firmware.bin
+
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          repository: FlipGame-Hetic/Demo
+          token: ${{ secrets.DEMO_REPO_PAT }}
+          path: demo-repo
+
+      - name: Copy & push
+        run: |
+          mkdir -p demo-repo/firmware/build
+          cp merged-firmware.bin demo-repo/firmware/build/firmware.bin
+          cd demo-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add firmware/build/firmware.bin
+          git commit -m "ci: update merged firmware from IOT@${{ github.sha }}" || echo "No changes"
+          git push
